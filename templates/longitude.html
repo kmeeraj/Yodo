@@ -1,0 +1,8 @@
+
+{% block content %}
+Longitude and Latitude Information:<p>
+{% for dr in object_list %}
+{{dr.id}} {{dr.name}} {{dr.longitude}} {{dr.latitude}} <br/>
+    </p>
+{% endfor %}
+{% endblock %}

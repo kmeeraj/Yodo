@@ -1,0 +1,109 @@
+<html>
+    <head>
+        <script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBEqkPgTeECTnNSWnTjTR0IKSHLDKj956Q"
+      async
+    ></script>
+
+    </head>
+   <body onload="getLocation()">
+      You are : <strong>{{username}}</strong>
+   <div id ="demo"></div>
+   <form name = "ApplyForm" action = "{% url "apply" %}"
+         method = "POST" >{% csrf_token %}
+        <input type = "hidden" style = "margin-left:20%;"
+                  placeholder = "username" name = "username" id = "username" value="{{ username }}" />
+         <div style = "max-width:470px;">
+               <input type = "text" style = "margin-left:20%;"
+                  placeholder = "longitude" name = "longitude" id = "longitude" />
+         </div>
+
+         <div style = "max-width:470px;">
+               <input type = "text" style = "margin-left:20%;"
+                  placeholder = "latitude" name = "latitude" id = "latitude" />
+         </div>
+        <div style = "max-width:470px;">
+               <button style = "border:0px; background-color:#4285F4; margin-top:8%;
+                  height:35px; width:80%;margin-left:19%;" type = "submit"
+                  value = "Apply" >
+                  <strong>Apply</strong>
+               </button>
+         </div>
+   </form>
+      <div id="map" style="height:50%"></div>
+   <button style = "border:0px; background-color:#4285F4; margin-top:8%;
+                  height:35px; width:80%;margin-left:19%;" type = "button" onclick="initMap()"
+                  value = "latlang" >
+                  <strong>Get Longitude and Latitude from Google</strong>
+               </button>
+   </body>
+    <script>
+    let x = document.getElementById("demo");
+    function getLocation() {
+        x.innerHTML = 'Please wait.....'
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition);
+      } else {
+        x.innerHTML = "Geolocation is not supported by this browser.";
+      }
+    }
+
+    function showPosition(position) {
+      x.innerHTML = "Latitude and Longitude is found"
+      document.getElementById("latitude").value = position.coords.latitude;
+      document.getElementById("longitude").value = position.coords.longitude;
+    }
+
+    let map, infoWindow;
+
+    function initMap() {
+      map = new google.maps.Map(document.getElementById("map"), {
+        center: { lat: -34.397, lng: 150.644 },
+        zoom: 6,
+      });
+      infoWindow = new google.maps.InfoWindow();
+
+      const locationButton = document.createElement("button");
+
+      locationButton.textContent = "Pan to Current Location";
+      locationButton.classList.add("custom-map-control-button");
+      map.controls[google.maps.ControlPosition.TOP_CENTER].push(locationButton);
+      locationButton.addEventListener("click", () => {
+        // Try HTML5 geolocation.
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              const pos = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+              };
+              infoWindow.setPosition(pos);
+              infoWindow.setContent("Location found, Latitude : "+ pos.lat+ " , Longitude: "+ pos.lng);
+              document.getElementById("latitude").value = pos.lat;
+              document.getElementById("longitude").value = pos.lng;
+              infoWindow.open(map);
+              map.setCenter(pos);
+            },
+            () => {
+              handleLocationError(true, infoWindow, map.getCenter());
+            }
+          );
+        } else {
+          // Browser doesn't support Geolocation
+          handleLocationError(false, infoWindow, map.getCenter());
+        }
+      });
+    }
+
+    function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+      infoWindow.setPosition(pos);
+      infoWindow.setContent(
+        browserHasGeolocation
+          ? "Error: The Geolocation service failed."
+          : "Error: Your browser doesn't support geolocation."
+      );
+      infoWindow.open(map);
+    }
+
+    </script>
+</html>
